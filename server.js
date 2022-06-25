@@ -2,9 +2,8 @@ const express = require("express");
 
 const server = express();
 server.all("/", (req, res) => {
-    console.log("Express server running...")
     res.setHeader('Content-Type', 'text/html');
-    res.sendFile("index.html");
+    res.sendfile("index.html");
 })
 
 function keepAlive() {
