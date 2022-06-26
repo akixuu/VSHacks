@@ -1,67 +1,64 @@
 // poop
 
-// get the good stuff
+const Discord = require('discord.js');
+const keepAlive = require('./server.js');
 const fs = require('fs');
-const path = require('path');
-const { Client, Intents, Collection } = require("discord.js");
-const keepAlive = require("./server.js")
-const glob = require("glob")
-const prefix = "."
+const prefix='.';
 
-// create new client for the bot
-const client = new Client({ 
-    intents: [
-        Intents.FLAGS.GUILDS, 
-        Intents.FLAGS.GUILD_MESSAGES,
-        Intents.FLAGS.GUILD_MEMBERS
-    ] 
-})
-
-client.once("ready", () => {
-    console.log(client.user.tag + " is online...")
-})
-
-client.once("message", msg => {
-    if(msg.author.bot == true) return; // don't reply to self
-    if(!msg.content.startsWith(prefix)) return; // ignore unprefixed msgs
-    if (msg.content==(prefix+"reload") && msg.author.id == process.env.MY_ID) {
-        fs.readdir("./commands", (err, files) => {
-            if (err) return;
-
-            files.forEach((file) => {
-                console.log(file)
-                delete require.cache[require.resolve(file)];
-
-                const update = require(file);
-                commands.set(update.name, update);
-                console.log("Command " 
- + update.name + " reloaded.");
-            
-            })
-        })
-    }
-        
-})
-
-const commands = new Collection();
-
-// initial command registry
-fs.readdir("./commands", (err, files) => {
-      if (err) throw err;
-
-      files.forEach((file) => {
-         const filepath = path.resolve(file);
-
-         fs.stat(filepath, (_, stats) => {
-         if (stats.isFile() && file.endsWith('.js')) {
-             const newCommand = require(filepath);
-             newCommand.set(newCommand.name, newCommand);
-             console.log("Command '${update.name}' initialized.");
-          }
-         
-       });
-   });
+const client = new Discord.Client({ 
+    intents: new Discord.Intents(32767)
 });
 
-keepAlive()
+
+// COMMAND SETUP
+client.commands = new Discord.Collection();
+
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js')); // filter for .js files
+
+// fetch files
+for(let file of commandFiles) {
+    let command = require(`./commands/${file}`);
+	client.commands.set(command.name, command);
+    console.log(`command ${command.name} added.`);
+}
+
+
+client.once('ready', () => {
+    console.log(client.user.tag + ' is online...');
+});
+
+client.on('messageCreate', msg => {
+    if(!msg.content.startsWith(prefix)) return; // ignore bot or unprefixed
+
+    // split input args, remove prefix, and sanitize
+    const args = msg.content.slice(prefix.length).split(/ +/);
+    const command = args[0].toLowerCase();
+    
+    console.log('Command: ' + command + '\n Arguments: '+ args);
+
+    // run commands
+    if(command=='refresh') { 
+        if (args.length==1) return msg.channel.send("Enter command to refresh.");
+        try {
+            const refreshCommand = args[1];
+            delete require.cache[require.resolve(`./commands/${refreshCommand}.js`)];
+            client.commands.delete(refreshCommand);
+            const file = require(`./commands/${refreshCommand}.js`);
+            client.commands.set(refreshCommand, file)
+        } catch (error) {
+            return msg.channel.send("Refresh failed, " + error);
+        }
+        return msg.channel.send("Sucessfully Refreshed");
+    } // refresh is special
+    
+    try { 
+        client.commands.get(command).execute(msg, args);        
+    } catch (error) {
+        msg.channel.send("Invalid command.");
+    }
+});
+
+// wtf am i doing
+
+keepAlive() // + uptimerobot will ping from time to time
 client.login(process.env.TOKEN); // bot login
