@@ -4,6 +4,7 @@ const Discord = require('discord.js');
 const keepAlive = require('./server.js');
 const fs = require('fs');
 const prefix='.';
+const mongoose = require('mongoose')
 
 const client = new Discord.Client({ 
     intents: new Discord.Intents(32767)
@@ -23,8 +24,14 @@ for(let file of commandFiles) {
 }
 
 
-client.once('ready', () => {
-    console.log(client.user.tag + ' is online...');
+client.once('ready', async () => {
+    console.log(`${client.user.tag} is online.`);
+    await mongoose.connect(process.env.MONGO_URI, { keepAlive: true })
+    .then(() => {
+        console.log("Connection with database established.")
+    }).catch((e) => {
+        console.log(e)
+    });
 });
 
 client.on('messageCreate', msg => {
@@ -34,9 +41,9 @@ client.on('messageCreate', msg => {
     const args = msg.content.slice(prefix.length).split(/ +/);
     const command = args[0].toLowerCase();
     
-    console.log('Command: ' + command + '\n Arguments: '+ args);
+    console.log('\nBOT COMMAND\nCommand: ' + command + '\nArguments: '+ args);
 
-    // run commands
+    // refresh is separated cz it's special
     if(command=='refresh') { 
         if (args.length==1) return msg.channel.send("Enter command to refresh.");
         try {
@@ -45,20 +52,21 @@ client.on('messageCreate', msg => {
             client.commands.delete(refreshCommand);
             const file = require(`./commands/${refreshCommand}.js`);
             client.commands.set(refreshCommand, file)
-        } catch (error) {
-            return msg.channel.send("Refresh failed, " + error);
+        } catch (e) {
+            return msg.channel.send("Refresh failed, " + e);
         }
         return msg.channel.send("Sucessfully Refreshed");
-    } // refresh is special
-    
-    try { 
-        client.commands.get(command).execute(msg, args);        
-    } catch (error) {
-        msg.channel.send("Invalid command.");
+    }
+
+    // other commands
+    try {  client.commands.get(command).execute(client, msg, args);        
+    } catch (e) {
+        msg.channel.send("Error: " + e);
     }
 });
 
 // wtf am i doing
 
-keepAlive() // + uptimerobot will ping from time to time
-client.login(process.env.TOKEN); // bot login
+keepAlive() // + uptimerobot will ping from time to time 
+// note to self : https://uptimerobot.com/dashboard#792085830
+client.login(process.env.TOKEN);

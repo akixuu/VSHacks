@@ -1,8 +1,9 @@
 module.exports = {
-   name: 'two',
-   description: 'placeholer two...',
+    name: 'two',
+    description: 'placeholer two...',
+    use:'two',
 
-   execute: async (msg, args) => {
+   execute: async (client, msg, args) => {
         msg.channel.send('pong')
    }
 };
