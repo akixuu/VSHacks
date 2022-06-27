@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<head>
+	<script type="text/javascript" src="../stopwatch-js.js"></script>
+</head>
+<body></body>
+<script type="text/javascript">
+	Array.prototype.distinct = function(){
+	for(var i = 0;i < this.length;i++){
+		for(var j = i+1;j < this.length;){
+			if(this[j] === this[i]){
+			for(var k = j;k < this.length;k++){
+				this[k] = this[k + 1];
+			}
+			   delete this[this.length - 1];
+				this.length--;
+				
+			}else{
+				j++;
+			}
+		}
+	}
+	return this;
+};
+var stopWatch = new StopWatch();
+
+stopWatch.start();
+console.log([1,1,2,44,2,22,22].distinct());
+setTimeout(function(){
+	stopWatch.stop();
+	console.log(stopWatch.duration());
+},3000);
+
+var s2 = new StopWatch();
+s2.start();
+setTimeout(function(){
+	s2.stop();
+	console.log(s2.duration());
+},2000);
+</script>
+</html>

@@ -8,6 +8,8 @@ module.exports = {
             return msg.channel.send('Invalid arguments, use \'.rank <@user>\'')
         }
 
+        const searchuser = args[1];
+
         // read from db
         // send data
         
