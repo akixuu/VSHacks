@@ -38,6 +38,8 @@ const rowStart = new MessageActionRow()
 					.setStyle('SECONDARY')
                     
 		);
+const StudySessionSchema = require('../schemas/StudySessionSchema.js')
+
 module.exports = {
     name: 'studytimer',
     description: 'menu options to start, stop, pause studytimer',
@@ -46,7 +48,7 @@ module.exports = {
     execute: async(client, msg, args) => {
         embed = new MessageEmbed()
         .setColor(msg.author.displayHexColor)
-        .setTitle('StudyTimer')
+        .setTitle('Study Timer')
         .setTimestamp()
             .setThumbnail(process.env.SMALL_LOGO_URL)
         .setAuthor({ name: (`Requested by user ${msg.author.tag}.`), iconURL: msg.author.displayAvatarURL()})
@@ -85,13 +87,21 @@ module.exports = {
             		// await interaction.update({ content: 'Timer has started...!', components: [] });
                     stopWatch = new StopWatch();
                     stopWatch.start();
-                    embed.setTitle('StudyTimer | Timer has started...')
+                    embed.setTitle('Study Timer | Timer has started...')
                     await interaction.update({ embeds: [embed], components: [rowStop] })
             	}
             if (interaction.customId === 'stop') {
                 stopWatch.stop()
-                embed.setTitle('StudyTimer | Timer has stopped!').setDescription(`You gained +${Math.round(stopWatch.duration())} points (measured seconds) from this study session - good work!`);
+                embed.setTitle('Study Timer | Timer has stopped!').setDescription(`You gained +${Math.round(stopWatch.duration())} points (measured seconds) from this study session - good work!`);
                 await interaction.update({ embeds: [embed], components: [] })
+                //update db
+                // if user doesn't exist yet, create user
+                if(true){}
+                const createNew = await StudySessionSchema.create({
+                    userId: msg.user.id,
+                    pointsAmassed: stopWatch.duration()
+                })  
+                // if user exists in database
             }	
         })
     } //end of execute

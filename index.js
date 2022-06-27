@@ -36,7 +36,7 @@ client.once('ready', async () => {
 });
 
 client.on('messageCreate', msg => {
-    if(!msg.content.startsWith(prefix)) return; // ignore bot or unprefixed
+    if(!msg.content.startsWith(prefix)) return; // ignore unprefixed
 
     // split input args, remove prefix, and sanitize
     const args = msg.content.slice(prefix.length).split(/ +/);
