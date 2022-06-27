@@ -1,4 +1,5 @@
 // poop
+// https://cog-creators.github.io/discord-embed-sandbox/
 
 const Discord = require('discord.js');
 const keepAlive = require('./server.js');

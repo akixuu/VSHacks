@@ -5,11 +5,12 @@ module.exports = {
     
     execute: async(client, msg, args) => {
         const fetch = require('node-fetch')
-        const response = await fetch('https://zenquotes.io/api/random/');
+        const url = 'https://zenquotes.io/api/random/'
+        const response = await fetch(url);
         const data = await response.json();
-        
-        const { MessageEmbed } = require('discord.js');
 
+        // send data out with as a embed
+        const { MessageEmbed } = require('discord.js');
         embed = new MessageEmbed()
         .setColor('#FFFF00')
         .setTitle(data[0]['q'])
