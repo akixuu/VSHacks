@@ -4,17 +4,19 @@
 const Discord = require('discord.js');
 const keepAlive = require('./server.js');
 const fs = require('fs');
+
+require('dotenv').config()
+
 const prefix='.';
+
 const mongoose = require('mongoose')
 
 const client = new Discord.Client({ 
     intents: new Discord.Intents(32767)
 });
 
-
 // COMMAND SETUP
 client.commands = new Discord.Collection();
-
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js')); // filter for .js files
 
 // fetch files
@@ -24,15 +26,14 @@ for(let file of commandFiles) {
     console.log(`command ${command.name} added.`);
 }
 
-
 client.once('ready', async () => {
     console.log(`${client.user.tag} is online.`);
     await mongoose.connect(process.env.MONGO_URI, { keepAlive: true })
-    .then(() => {
-        console.log("Connection with database established.")
-    }).catch((e) => {
-        console.log(e)
-    });
+                .then(() => {
+                    console.log("Connection with database established.")
+                }).catch((e) => {
+                    console.log(e)
+                });
 });
 
 client.on('messageCreate', msg => {
@@ -54,7 +55,7 @@ client.on('messageCreate', msg => {
             const file = require(`./commands/${refreshCommand}.js`);
             client.commands.set(refreshCommand, file)
         } catch (e) {
-            return msg.channel.send("Refresh failed, " + e);
+            return msg.channel.send("Refresh failed: " + e);
         }
         return msg.channel.send("Sucessfully Refreshed");
     }
@@ -68,6 +69,5 @@ client.on('messageCreate', msg => {
 
 // wtf am i doing
 
-keepAlive() // + uptimerobot will ping from time to time 
-// note to self : https://uptimerobot.com/dashboard#792085830
+keepAlive() // + uptimerobot will ping from time to time https://uptimerobot.com/dashboard#792085830
 client.login(process.env.TOKEN);

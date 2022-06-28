@@ -11,10 +11,12 @@ module.exports = {
 
         // send data out with as a embed
         const { MessageEmbed } = require('discord.js');
+        
         embed = new MessageEmbed()
         .setColor('#FFFF00')
         .setTitle(data[0]['q'])
         .setFooter(`-${data[0]['a']} | zenquotes.io`);
-        msg.channel.send({ embeds: [embed] });
+
+        await msg.channel.send({ embeds: [embed] });
     }
 }

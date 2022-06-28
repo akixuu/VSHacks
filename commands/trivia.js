@@ -1,4 +1,5 @@
 module.exports = {
+    // https://the-trivia-api.com/docs/
     name: 'trivia',
     description: 'test your intellect!',
     use:'trivia <topic>',
@@ -34,6 +35,7 @@ module.exports = {
         const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
 
         // bad implementation
+        // FIXME: bug
         const row = new MessageActionRow().addComponents(
         new MessageButton()
             .setLabel(options[0])

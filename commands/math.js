@@ -4,6 +4,6 @@ module.exports = {
     use:'math <mode>',
     
     execute: async(client, msg, args) => {
-        
+        // TODO: update
     }
 }
