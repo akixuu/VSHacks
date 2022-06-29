@@ -9,12 +9,12 @@ module.exports = {
 
         const { MessageEmbed } = require('discord.js')
         embed = new MessageEmbed()
-        .setColor('#FFFFFF')
-        .setTitle("Study Timer Leaderboard")
-        .setThumbnail(process.env.SMALL_LOGO_URL)
+        .setColor('#2472af')
+        .setTitle("Leaderboard | Our top scholars!")
+        .setThumbnail('https://media.discordapp.net/attachments/954788384000331800/991185874165440572/Group_5.png')
         .setTimestamp();
 
-        console.log(sorted[0])
+        console.log(sorted)
 
         let names=''
         let ranks=''

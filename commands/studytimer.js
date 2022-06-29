@@ -49,11 +49,13 @@ module.exports = {
     use:'studyoptions',
     
     execute: async(client, msg, args) => {
+        const stopWatch = new StopWatch();
+
         embed = new MessageEmbed()
         .setColor(msg.author.displayHexColor)
-        .setTitle('Study Timer')
+        .setTitle('⌛ Study Timer')
         .setTimestamp()
-        .setThumbnail(process.env.SMALL_LOGO_URL)
+        .setThumbnail('https://media.discordapp.net/attachments/954788384000331800/991188520859357245/Group_4-removebg-preview.png')
         .setAuthor({ name: (`Requested by user ${msg.author.tag}.`), iconURL: msg.author.displayAvatarURL()})
         .setDescription( `Log time studied, keep friends accountable, and compete with other students!`);
         msg.channel.send({ embeds: [embed], components: [rowStart] });
@@ -87,9 +89,8 @@ module.exports = {
             }
 
             if (interaction.customId === 'start') {
-                    stopWatch = new StopWatch();
                     stopWatch.start();
-                    embed.setTitle('Study Timer | Timer has started...')
+                    embed.setTitle('⌛ Study Timer | Timer has started...')
                     await interaction.update({ embeds: [embed], components: [rowStop] })
             }
             
@@ -97,11 +98,9 @@ module.exports = {
                 
                 stopWatch.stop()
                 
-                embed.setTitle('Study Timer | Timer has stopped!').setDescription(`You gained +${Math.round(stopWatch.duration())} points (measured seconds) from this study session - good work!`);
+                embed.setTitle('⌛ Study Timer | Timer has stopped!').setDescription(`You gained +${Math.round(stopWatch.duration())} points from this study session - good work!`);
                 await interaction.update({ embeds: [embed], components: [] })
-                
-                //TODO: update db
-                
+                                
 
                 const StudyTimeModel = require('../schemas/StudyTimeSchema.js')
 

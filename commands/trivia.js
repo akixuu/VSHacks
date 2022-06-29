@@ -1,10 +1,12 @@
-module.exports = {
+const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
+
+module.exports = { // TODO: FIX BAD IMPLEMENTAATION
     // https://the-trivia-api.com/docs/
     name: 'trivia',
     description: 'test your intellect!',
     use:'trivia <topic>',
     
-    execute: async(client, msg, args) => {
+    execute: async (client, msg, args) => {
         if(args.length!=2){
             return msg.channel.send("Invalid call, use: .trivia <topic>")
         }
@@ -24,40 +26,52 @@ module.exports = {
         const question=data[0]['question'];
         const answer=data[0]['correctAnswer'];
         const options=data[0]['incorrectAnswers'];
-~        options.push(answer)
+~       options.push(answer)
 
-        // const Math = required('math')
+
+        console.log(answer)
+
+        options.sort(() => Math.random() - 0.5); // bad implementation but it's ok
+
+        const answerIndex = options.indexOf(answer)
+
         // const shuffledArray = array.sort((a, b) => 0.5 - Math.random());
         // naaah nobody's gonna see it anyways
+        const emojis=['🍎','🥝','🍋','🫐']
 
-        
-        // prompt question
-        const { MessageEmbed, MessageButton, MessageActionRow } = require('discord.js');
 
-        // bad implementation
-        // FIXME: bug
-        const row = new MessageActionRow().addComponents(
-        new MessageButton()
-            .setLabel(options[0])
-            .setStyle('SUCESS')
-            .setCustomId(options[0]),
-        new MessageButton()
-            .setLabel(options[1])
-            .setStyle('SUCCESS')
-            .setCustomId(options[1]),
-        new MessageButton()
-            .setLabel(options[2])
-            .setStyle('SUCCESS')
-            .setCustomId(options[2]),
-        new MessageButton()
-            .setLabel(options[3])
-            .setStyle('SUCCESS')
-            .setCustomId(options[3])
-        );
-    
-        msg.channel.send({ 
-            content: "Choose your answer: ",
-            components: [row]
+        let description=''
+        for (let i = 0; i < 4; i++) { description+=`${emojis[i]} ${options[i]} \n`; }
+
+        embed = new MessageEmbed()
+            .setTitle(question)
+            .setDescription(description)
+
+        const sentMsg = await msg.channel.send({ embeds: [embed] });
+
+        for (let i = 0; i < 4; i++) { await sentMsg.react(emojis[i]) }
+
+        client.on("messageReactionAdd", async function(messageReaction, user){
+            if(user.bot) return;
+
+            let userSelection;
+            for (let i = 0; i < 4; i++) { if(messageReaction._emoji.name==emojis[i]) userSelection=i; }
+
+            sentMsg.reactions.removeAll()
+            
+            if(answerIndex == userSelection) {
+                embed = new MessageEmbed()
+                    .setTitle(question)
+                    .setDescription(description+'\n**You\'re Right!**')
+                await sentMsg.edit({ embeds: [embed] })
+            } else {
+                embed = new MessageEmbed()
+                    .setTitle(question)
+                    .setDescription(description+'\n**You\'re Wrong!**')
+                await sentMsg.edit({ embeds: [embed] })
+            }
+
         });
+
     }
 }

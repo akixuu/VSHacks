@@ -5,6 +5,9 @@ const Discord = require('discord.js');
 const keepAlive = require('./server.js');
 const fs = require('fs');
 
+const StopWatch = require('stopwatch-js')
+stopWatch = new StopWatch();
+
 require('dotenv').config()
 
 const prefix='.';
@@ -12,7 +15,7 @@ const prefix='.';
 const mongoose = require('mongoose')
 
 const client = new Discord.Client({ 
-    intents: new Discord.Intents(32767)
+    intents: new Discord.Intents(131071)
 });
 
 // COMMAND SETUP
@@ -66,6 +69,49 @@ client.on('messageCreate', msg => {
         msg.channel.send("Error: " + e);
     }
 });
+
+client.on('voiceStateUpdate', async (oldMember, newMember) => {
+        // console.log(`a user changes voice state`);
+        // console.log('\n\n')
+        // console.log(oldMember)
+        // console.log('\n\n')
+        // console.log(newMember)
+        // console.log('\n\n')
+
+        // niiiiiiceeeee
+        if(oldMember.channelId==991223199964594276) {
+            console.log('user has left studytimer vc')
+            stopWatch.stop()
+
+            if('undefined'===stopWatch.duration()) { return }
+
+            const StudyTimeModel = require('./schemas/StudyTimeSchema.js')
+
+                const exists = await StudyTimeModel.findOne({ userId: oldMember.id})
+
+                if (exists) { 
+                    // update pre-existing user values
+                    await StudyTimeModel.updateOne(  { userId: oldMember.id} , { $set: { pointsAmassed: exists.pointsAmassed + stopWatch.duration() } })
+
+                } 
+                else { // accomodate new user in database
+                    await StudyTimeModel.create({
+                        userId: oldMember.id,
+                        pointsAmassed: stopWatch.duration()
+                    });   
+                }
+
+                const channel = client.channels.cache.get('991223199964594276')
+                await channel.send(`<@${oldMember.id}> has gained +${Math.round(stopWatch.duration())} points from their study session.`)
+
+        } else {
+            const channel = client.channels.cache.get('991223199964594276')
+            console.log(channel)
+            await channel.send(`<@${oldMember.id}>, you have started a study session!`)
+            stopWatch.start();
+        }
+});
+
 
 // wtf am i doing
 
